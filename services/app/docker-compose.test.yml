@@ -1,0 +1,15 @@
+---
+
+version: '3.3'
+
+services:
+
+  db:
+    image: postgres
+
+  sut:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    depends_on:
+      - db

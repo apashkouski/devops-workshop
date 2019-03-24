@@ -8,3 +8,5 @@ __pycache__
 .python-version
 secrets.auto.tfvars
 .terraform
+terraform.tfstate.backup
+tmp
