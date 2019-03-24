@@ -4,6 +4,11 @@ version: '3.3'
 
 services:
 
+  db:
+    image: postgres:11.2
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   nginx:
     build:
       context: services/nginx
@@ -20,9 +25,17 @@ services:
       context: services/app
       dockerfile: Dockerfile.development
     command: sh -c "python manage.py runserver 0.0.0.0:8000"
+    env_file: ".env"
+    ports:
+      - "${PORT}:${PORT}"
     environment:
       PYTHONUSERBASE: ./vendor
     volumes:
       - "~/.bash_history:/.bash_history"
       - "./services/app:/usr/src/app:cached"
       - "/tmp:/tmp:delegated"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

@@ -3,3 +3,8 @@
 vendor
 *.sqlite3
 __pycache__
+.env
+*.retry
+.python-version
+secrets.auto.tfvars
+.terraform

@@ -1,0 +1,13 @@
+# -*- mode: yaml; vault: true; -*-
+---
+
+#devops-workshop_vault_github_client_id_ru: ""
+#devops-workshop_vault_github_client_secret_ru: ""
+#devops-workshop_vault_db_hostname: "db"
+#devops-workshop_vault_db_username: "postgres"
+#devops-workshop_vault_db_pool_size: 2
+#devops-workshop_vault_db_password: ""
+#devops-workshop_vault_db_name: "devops-workshop_dev"
+#devops-workshop_vault_secret_key_base: ""
+#devops-workshop:
+#  vault_rollbar_access_token: ""
