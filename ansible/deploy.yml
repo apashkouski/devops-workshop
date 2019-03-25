@@ -2,12 +2,12 @@
 - hosts: all
   gather_facts: false
   vars_prompt:
-    - name: "devops-workshop_image_tag"
+    - name: "devops_workshop_image_tag"
       prompt: "Devops workshop image tag"
       private: false
 
   tasks:
-    - set_fact: devops-workshop_image_tag={{ devops-workshop_image_tag }}
+    - set_fact: devops_workshop_image_tag={{ devops_workshop_image_tag }}
       tags: always
 
 - hosts: webservers
@@ -18,27 +18,27 @@
   tasks:
     - name: Create a network
       docker_network:
-        name: "{{ devops-workshop_docker_network }}"
+        name: "{{ devops_workshop_docker_network }}"
 
-    - template:
-        src: environment.j2
-        dest: "{{ devops-workshop_env_file }}"
-      tags: env
+    # - template:
+    #     src: environment.j2
+    #     dest: "{{ devops-workshop_env_file }}"
+    #   tags: env
 
     - name: download app image
       docker_image:
-        name: "{{ devops-workshop_image_name }}:{{ devops-workshop_image_tag }}"
+        name: "{{ devops_workshop_image_name }}:{{ devops_workshop_image_tag }}"
         force: true
 
     - name: download nginx image
       docker_image:
-        name: "{{ devops-workshop_nginx_image_name }}:{{ devops-workshop_image_tag }}"
+        name: "{{ devops_workshop_nginx_image_name }}:{{ devops_workshop_image_tag }}"
         force: true
 
-    - name: download postgres image
-        docker_image:
-          name: "{{ devops-workshop_postgres_image_name }}:{{ devops-workshop_image_tag }}"
-          force: true
+    # - name: download postgres image
+    #     docker_image:
+    #       name: "{{ devops-workshop_postgres_image_name }}:{{ devops-workshop_image_tag }}"
+    #       force: true
 
 #    - name: run migrations
 #      docker_container:
@@ -60,74 +60,30 @@
     - name: start nginx
       docker_container:
         recreate: true
-        name: devops-workshop-nginx
-        image: "{{ devops-workshop_nginx_image_name }}:{{ devops-workshop_image_tag }}"
+        name: nginx
+        image: "{{ devops_workshop_nginx_image_name }}:{{ devops_workshop_image_tag }}"
         state: started
-        # log_driver: awslogs
-        # log_options:
-        #   awslogs-group: "{{ hexlet_basics_aws_logs_group }}"
-        #   awslogs-stream: "{{ hexlet_basics_aws_logs_stream_web }}"
-        #   awslogs-region: '{{ hexlet_basics_aws_region }}'
         restart_policy: always
         published_ports:
-          - "80:8080"
+          - "80:80"
         networks:
-          - name: "{{ devops-workshop_docker_network }}"
+          - name: "{{ devops_workshop_docker_network }}"
       tags: [webserver]
 
     - name: start application
       docker_container:
         recreate: true
         name: app
-        image: "{{ hexlet_basics_image_name }}:{{ hexlet_basics_image_tag }}"
+        image: "{{ devops_workshop_image_name }}:{{ devops_workshop_image_tag }}"
         state: started
-        log_driver: awslogs
-        log_options:
-          awslogs-group: "{{ hexlet_basics_aws_logs_group }}"
-          awslogs-stream: "{{ hexlet_basics_aws_logs_stream_web }}"
-          awslogs-region: '{{ hexlet_basics_aws_region }}'
+        command: sh -c "python manage.py runserver 0.0.0.0:8000"
         restart_policy: always
-        env_file: "{{ hexlet_basics_env_file }}"
-        env:
-          MIX_ENV: prod
-          NODE_ENV: production
-        # published_ports:
-        #   - "80:{{ hexlet_basics_port }}"
+#        env_file: "{{ hexlet_basics_env_file }}"
         volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
           - "/tmp:/tmp"
           - "/opt:/opt"
           - "/var/tmp:/var/tmp"
         networks:
-          - name: "{{ hexlet_basics_docker_network }}"
+          - name: "{{ devops_workshop_docker_network }}"
       tags: [webserver]
-
-    - lineinfile:
-        regexp: "HEXLET_BASICS_VERSION"
-        line: "HEXLET_BASICS_VERSION={{ hexlet_basics_image_tag }}"
-        dest: /etc/environment
-        backup: true
-        state: present
-      become: true
-
-- hosts: all
-  gather_facts: false
-  tasks:
-
-    - name: "Send deploy hook to Rollbar"
-      local_action: shell curl https://api.rollbar.com/api/1/deploy/ \
-          -F access_token="{{ hexlet_basics_vault_rollbar_access_token }}" \
-          -F environment="{{ hexlet_basics_mix_env }}" \
-          -F revision="{{ hexlet_basics_image_tag }}" \
-          -F local_username="{{ ansible_ssh_user }}"
-      run_once: true
-
-    - name: notify slack
-      local_action:
-        module: slack
-        domain: hexlet.slack.com
-        token: "{{ hexlet_basics_vault_slack_token }}"
-        msg: "Hexlet Basics deploy completed ({{ hexlet_basics_mix_env }})"
-        channel: "#operation"
-        username: "{{ ansible_ssh_user }}"
-      run_once: true

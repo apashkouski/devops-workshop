@@ -1,1 +1,5 @@
 devops_workshop_port: 8000
+# devops-workshop_env_file:
+devops_workshop_image_name: "apashkouski/workshop-devops-app"
+devops_workshop_nginx_image_name: "apashkouski/workshop-devops-nginx"
+devops_workshop_docker_network: "devops-workshop"
