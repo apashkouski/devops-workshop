@@ -1,2 +1,2 @@
-# Devops Hexlet Workshop
-[link](https://gist.github.com/mokevnin/02f84fa9d35aad2c8277b3dede147155)
+# Hexlet Devops Workshop
+[devops workshop links](https://gist.github.com/mokevnin/02f84fa9d35aad2c8277b3dede147155)
